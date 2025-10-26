@@ -13,6 +13,11 @@ public without sharing class TwitterSchedulable implements Schedulable {
     };
 
     public void execute(SchedulableContext sc) {
+        sendTweet();
+    }
+
+    @future(callout=true)
+    private static void sendTweet() {
         Map<String, HttpResponse> actionToResponseMap = new Map<String, HttpResponse>();
         for (String action_i : ACTION_TO_SUCCESS_CODE_MAP.keySet()) {
             Integer statusCode_i = ACTION_TO_SUCCESS_CODE_MAP.get(action_i);
@@ -26,7 +31,7 @@ public without sharing class TwitterSchedulable implements Schedulable {
         TwitterIntegration.saveToken();
     }
 
-    private HttpResponse getResponse(String pAction, Map<String, HttpResponse> pActionToResponseMap) {
+    private static HttpResponse getResponse(String pAction, Map<String, HttpResponse> pActionToResponseMap) {
         HttpResponse response;
         switch on pAction {
             when 'quote'{
@@ -48,7 +53,7 @@ public without sharing class TwitterSchedulable implements Schedulable {
         return response;
     }
 
-    public void sendErrorEmail(String pAction, String pErrorMessage) {
+    public static void sendErrorEmail(String pAction, String pErrorMessage) {
         Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
         email.setToAddresses(new List<String> {NOTIFICATION_EMAIL});
         email.setSubject('Quote Tweet Error: ' + Date.today());
